@@ -35,7 +35,8 @@ const ipPath        = "/bin/ip"
 
 type NetConf struct {
     types.NetConf
-    ServerUrl       string `json:"ServerUrl"`
+    //ServerUrl       string `json:"ServerUrl"`
+    ServerUrl       "http://127.0.0.1:8060"
 }
 
 func init() {

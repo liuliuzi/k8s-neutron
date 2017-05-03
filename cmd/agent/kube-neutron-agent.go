@@ -7,24 +7,24 @@ import (
 	//"github.com/spf13/pflag"
 	//"github.com/golang/glog"
 	"github.com/urfave/cli"
+	"github.com/liuliuzi/k8s-neutron/cmd/agent/appserver"
 
-	//"github.com/liuliuzi/stf/cmd/stf-agent/app"
-	//"github.com/liuliuzi/stf/cmd/stf-agent/app/options"
-	//"github.com/liuliuzi/stf/pkg/util"
 
 )
 func main() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
+    app := cli.NewApp()
+    app.Flags = []cli.Flag {
+	    cli.StringFlag{
+	      Name: "etcd",
+	      Value: "192.168.1.1:4000",
+	      Usage: "etcd url",
+	    },
+	}
 
-	s := options.NewAgentServer()
-	s.AddFlags(pflag.CommandLine)
+    app.Action = appserver.Run
 
-	//util.InitLogs()
-	//defer util.FlushLogs()
-
-	//glog.Info("valid agent app start")
-
-	if err := app.Run(s); err != nil {
+    if err := app.Run(os.Args); err != nil {
 		fmt.Fprintf(os.Stderr, "%v\n", err)
 		os.Exit(1)
 	}
