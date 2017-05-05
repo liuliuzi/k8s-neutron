@@ -5,7 +5,7 @@ import (
     "github.com/coreos/etcd/client"
     "github.com/golang/glog"
 )
-func Etcdclient(ip string, port int ) client.KeysAPI {
+func Etcdclient(ip string, port int ) (client.KeysAPI,error) {
         cfg := client.Config{
         Endpoints:               []string{"http://"+ip+":"+strconv.Itoa(port)},
         Transport:               client.DefaultTransport,
@@ -15,7 +15,8 @@ func Etcdclient(ip string, port int ) client.KeysAPI {
     c, err := client.New(cfg)
     if err != nil {
         glog.Fatal(err)
+        return nil,err
     }
     kapi := client.NewKeysAPI(c)
-    return  kapi
+    return  kapi,nil
 }

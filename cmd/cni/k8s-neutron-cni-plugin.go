@@ -63,6 +63,8 @@ func notice(args *skel.CmdArgs, mode string) error {
     }
     containerID:=os.Getenv("CNI_CONTAINERID")
     podName:=os.Getenv("K8S_POD_NAME")
+    cniNetNs:=os.Getenv("CNI_NETNS")
+    cniArgs:=os.Getenv("CNI_ARGS")
     fmt.Print(n,containerID,podName)
     var jsonStr = []byte(`{"title":"Buy cheese and bread for breakfast."}`)
     req, err := http.NewRequest("POST", n.ServerUrl, bytes.NewBuffer(jsonStr))
