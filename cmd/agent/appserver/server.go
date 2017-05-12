@@ -10,7 +10,7 @@ import (
 
     "github.com/docker/docker/client"
     //"github.com/liuliuzi/k8s-neutron/pkg/api/pod"
-    "github.com/liuliuzi/k8s-neutron/pkg/api/networkmange"
+    "github.com/liuliuzi/k8s-neutron/pkg/types"
     //"encoding/json"
 )
 
@@ -41,7 +41,7 @@ func Run (c *cli.Context) error {
 }
 
 func startAgent(dc *client.Client){
-    networkconfigChan := make(chan networkmange.Network)
+    networkconfigChan := make(chan types.Network)
     //nm :=new agent.NetworkManger
     go wait.Until(func() { agent.Update(networkconfigChan) }, 0, wait.NeverStop)
 	go wait.Until(func() { agent.SyncNetwork(dc,networkconfigChan) }, 5*time.Second, wait.NeverStop)

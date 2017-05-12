@@ -3,7 +3,7 @@ import (
 	"net/http"
 	"github.com/emicklei/go-restful"
 	"fmt"
-	//"github.com/liuliuzi/k8s-neutron/pkg"
+	"github.com/liuliuzi/k8s-neutron/pkg/types"
 	//"golang.org/x/net/context"
 	"strings"
 	//"encoding/json"
@@ -74,7 +74,7 @@ func (ns NetworkService) findNetwork(request *restful.Request, response *restful
 }
 
 func (u *NetworkService) updateNetwork(request *restful.Request, response *restful.Response) {
-	nw := new(Network)
+	nw := new(types.Network)
 	err := request.ReadEntity(&nw)
 	if err == nil {
 		//ns.storageUpdate(nw.Id,nw.String())
@@ -88,7 +88,7 @@ func (u *NetworkService) updateNetwork(request *restful.Request, response *restf
 
 func (u *NetworkService) createNetwork(request *restful.Request, response *restful.Response) {
 
-	nw := new(Network)
+	nw := new(types.Network)
 	err := request.ReadEntity(&nw)
 	if err == nil {
 		//ns.storageSet(nw.Id,nw)

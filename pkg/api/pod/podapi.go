@@ -8,13 +8,14 @@ import (
 	"strings"
 	"github.com/liuliuzi/k8s-neutron/pkg"
 	"encoding/json"
+	"github.com/liuliuzi/k8s-neutron/pkg/types"
 	//"github.com/bitly/go-simplejson"
 	//"github.com/emicklei/go-restful/swagger"
 )
 
 type PodService struct {
 	// normally one would use DAO (data access object)
-	Pods map[string]Pod
+	Pods map[string]types.Pod
 	ApiRuntime   *pkg.ApiRuntime
 	Prefix       string
 }
@@ -41,11 +42,11 @@ func (ps PodService) findAllpods(request *restful.Request, response *restful.Res
 	    fmt.Println(err)
 	    return
 	}
-	pods := []Pod{}
+	pods := []types.Pod{}
 	for _, key := range value {
             key=strings.Replace(key,ps.Prefix,"",20)
             value, _ := ps.storageGet(key)
-            pod := new(Pod)
+            pod := new(types.Pod)
             err = json.Unmarshal([]byte(value), pod)
 			if err != nil {
 			    fmt.Println(err)
@@ -61,7 +62,7 @@ func (ps PodService) findAllpods(request *restful.Request, response *restful.Res
 func (ps PodService) findpod(request *restful.Request, response *restful.Response) {
 	id := request.PathParameter("pod-id")
 	value, err := ps.storageGet(id)
-	pod := new(Pod)
+	pod := new(types.Pod)
 	err = json.Unmarshal([]byte(value), pod)
 	if err != nil {
 	    fmt.Println(err)
@@ -78,7 +79,7 @@ func (ps PodService) findpod(request *restful.Request, response *restful.Respons
 }
 
 func (ps *PodService) updatepod(request *restful.Request, response *restful.Response) {
-	pod := new(Pod)
+	pod := new(types.Pod)
 	err := request.ReadEntity(&pod)
 	if err == nil {
 		ps.storageUpdate(pod.Id,pod.String())
@@ -92,7 +93,7 @@ func (ps *PodService) updatepod(request *restful.Request, response *restful.Resp
 
 func (ps *PodService) createpod(request *restful.Request, response *restful.Response) {
 	fmt.Println("createpod")
-	pod := new(Pod)
+	pod := new(types.Pod)
 	err := request.ReadEntity(&pod)
 	if err == nil {
 		fmt.Println("createpod succ")

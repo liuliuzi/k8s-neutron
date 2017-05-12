@@ -4,56 +4,69 @@ import (
 	"fmt"
 	"github.com/docker/docker/client"
 	"context"
-    "github.com/docker/docker/api/types"
+    dockertypes "github.com/docker/docker/api/types"
     "net/http"
     "bytes"
     "io/ioutil"
-    "github.com/liuliuzi/k8s-neutron/pkg/api/pod"
-    "github.com/liuliuzi/k8s-neutron/pkg/api/networkmange"
+    //"github.com/liuliuzi/k8s-neutron/pkg/api/pod"
+    //"github.com/liuliuzi/k8s-neutron/pkg/api/networkmange"
+    "github.com/liuliuzi/k8s-neutron/pkg/types"
     "github.com/liuliuzi/k8s-neutron/pkg/networkmanger"
     "encoding/json"
 )
 
 
-func Update(networkconfigChan chan networkmange.Network){
-    networkconfig<-networkconfigChan
+func Update(networkconfigChan chan types.Network){
+    //var networkconfig networkmange.Network
+    networkconfig:= <- networkconfigChan
 	fmt.Println(networkconfig)
-    var networkManger networkmanger
-    if networkconfig.BrType==networkmange.Ovs
-
-}
-
-func SyncNetwork(dc *client.Client ,  networkconfigChan chan networkmange.Network) {
-	podList,err:=getPodList()
-    fmt.Println(podList)
-
-	//get container list
-	containers, err := dc.ContainerList(context.Background(), types.ContainerListOptions{})
-    if err != nil {
-        panic(err)
-    }
-
-    for _, container := range containers {
-        fmt.Printf("%s %s\n", container.ID, container.Image)
-        for _, pod := range podList{
-        	//fmt.Printf("%s \n", pod.ID, container.Image)
-        	//if pod.Id==container.ID{
-        		fmt.Printf("find ----------------\n")
-                getNetworksForPod(pod, networkconfigChan)
-        	//}
+    fmt.Println(networkconfig.BrType)
+    if networkconfig.BrType==types.Ovs{
+        ovsdr:=networkmanger.OvsNetworkManger{}
+        err:=ovsdr.Add(networkconfig)
+        if err!=nil{
+            fmt.Println(err)
         }
     }
 
 }
 
-func getNetworksForPod(pod pod.Pod ,networkconfigChan chan networkmange.Network){
+func SyncNetwork(dc *client.Client ,  networkconfigChan chan types.Network) {
+	podConfigList,err:=getPodConfigList()
+    fmt.Println(podList)
+
+	//get container list
+	containerList, err := dc.ContainerList(context.Background(), dockertypes.ContainerListOptions{})
+    if err != nil {
+        panic(err)
+    }
+
+    for _, container := range containerList {
+        fmt.Printf("%s %s\n", container.ID, container.Image)
+        for _, podConfig := range podConfigList{
+            if container.id==podConfig.id{
+                fmt.Printf("find ----------------\n")
+                currentNetworkIdList:=getNetworksFromContainer(container.id)
+                currentNetworkConfigIdList:=getNetworksFromPod(podConfig.Networks)
+                for _,currentNetwork:=range currentNetworks{
+                    if 
+                }
+        }
+        networkList=getContainerNetworkList(container.ID)
+    }
+
+    
+
+}
+
+func getNetworksForPod(pod types.Pod ,networkconfigChan chan types.Network){
     for _, network := range pod.Networks{
         fmt.Println(network.Id)
         syncNetworkForPod(pod,network,networkconfigChan)
     }
 }
 
-func syncNetworkForPod(pod pod.Pod, network networkmange.Network,networkconfigChan chan networkmange.Network){
+func syncNetworkForPod(pod types.Pod, network types.Network,networkconfigChan chan types.Network){
     //judege network is in pod
     //1,judege br exit
     //
@@ -66,7 +79,7 @@ func syncNetworkForPod(pod pod.Pod, network networkmange.Network,networkconfigCh
 
 
 
-func getPodList() ([]pod.Pod, error){
+func getPodConfigList() ([]types.Pod, error){
 	//get pod list
     ServerUrl:="http://10.140.163.102:8090/pods"
     var querystring = []byte(`{"title":"Buy cheese and bread for breakfast."}`)
@@ -82,7 +95,7 @@ func getPodList() ([]pod.Pod, error){
     if err != nil {
         return nil,err
     }
-    pods := make([]pod.Pod,0)
+    pods := make([]types.Pod,0)
     //fmt.Println(string(body)
     err=json.Unmarshal([]byte(body), &pods)
     if err != nil {

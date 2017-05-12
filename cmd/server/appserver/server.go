@@ -10,6 +10,7 @@ import (
     "github.com/liuliuzi/k8s-neutron/pkg/api/networkmange"
     "github.com/liuliuzi/k8s-neutron/pkg/api/pod"
     "github.com/liuliuzi/k8s-neutron/pkg"
+    "github.com/liuliuzi/k8s-neutron/pkg/types"
 
 
 )
@@ -39,7 +40,7 @@ func Run (c *cli.Context) error {
 
     ns := networkmange.NetworkService{"/k8s-neutron/networks/"}
     ns.Register()
-    ps := pod.PodService{map[string]pod.Pod{},apiRuntime,"/k8s-neutron/pods/"}
+    ps := pod.PodService{map[string]types.Pod{},apiRuntime,"/k8s-neutron/pods/"}
     ps.Register()
 
 

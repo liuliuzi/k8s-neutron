@@ -1,29 +1,89 @@
-package networkmange
-
+package networkmanger
 import (
 	"fmt"
-	"github.com/docker/docker/client"
-	"context"
-    "github.com/docker/docker/api/types"
-    "net/http"
-    "bytes"
-    "io/ioutil"
-    "github.com/liuliuzi/k8s-neutron/pkg/api/pod"
-    "github.com/liuliuzi/k8s-neutron/pkg/api/networkmange"
+	"strings"
+    //"github.com/liuliuzi/k8s-neutron/pkg/api/networkmange"
+    "github.com/liuliuzi/k8s-neutron/pkg/util/cli"
+    "github.com/liuliuzi/k8s-neutron/pkg/types"
 
 )
 
+const ovsPath       = "/usr/bin/ovs-vsctl"
+const pipeworkPath  = "/usr/bin/pipework"
 
 type OvsNetworkManger struct {
 
 }
 
-func (nm OvsNetworkManger)Add(networkconfigChan chan networkmange.Network){
-    fmt.Println(<-networkconfigChan)
-	fmt.Println("test")
+func (nm OvsNetworkManger)Add(networkconfig types.Network) error {
+    fmt.Println("start create br ",networkconfig.Br)
+    err:=nm.createBridge(networkconfig.Br)
+    if err!=nil{
+    	return err
+    }
+    return nil
 }
 
-func (nm OvsNetworkManger)show(networkconfig networkmange.Network){
-    fmt.Println(<-networkconfigChan)
-    fmt.Println("test")
+func (nm OvsNetworkManger)Show(networkconfig types.Network) error {
+    fmt.Println(networkconfig)
+    return nil
+}
+
+func (nm OvsNetworkManger)createBridge(brName string) error {
+	// create bridge if necessary
+    err := nm.ensureBridge(brName)
+    if err != nil {
+        return fmt.Errorf("failed to create bridge %q: %v", brName, err)
+    }
+    return nil
+}
+
+func (nm OvsNetworkManger)ensureBridge(brName string) error {
+	if brName==""{
+		return fmt.Errorf("no br name")
+	}
+	out, err := cli.New().Command(ovsPath, "show").CombinedOutput()
+    if err != nil {
+        return fmt.Errorf("failed to ls bridge %q: %v", out, err)
+    }
+    if string(out) != "" {
+        outlines:=strings.Split(string(out), "\n")
+        for _, numline := range outlines {
+            if strings.Contains(numline, brName){
+                return nil
+            }
+        }
+        _, err := cli.New().Command(ovsPath, "add-br",brName).CombinedOutput()
+        if err != nil {
+            return fmt.Errorf("failed to ls bridge %q: %v", out, err)
+        }
+    }
+    return nil
+}
+
+func (nm OvsNetworkManger)addVeth(brName string,containerID string, networktype types.networkType, argu string)  error {
+    if networkType==types.Direct{
+        return fmt.Errorf("unimplement network type%s", networktype)
+        //out, err := New().Command(pipeworkPath, brName, containerID,ip).CombinedOutput()
+    }else if networkType==types.Vlan{
+        return fmt.Errorf("unimplement network type%s", networktype)
+        //out, err := New().Command(pipeworkPath, brName, containerID,ip,"@"+vlanTag).CombinedOutput()
+    }
+    else if networkType==types.Vxlan{
+        return fmt.Errorf("unimplement network type%s", networktype)
+        //out, err := New().Command(pipeworkPath, brName, containerID,ip,"@"+vlanTag).CombinedOutput()
+    }
+    else if networkType==types.Gre{
+        return fmt.Errorf("unimplement network type%s", networktype)
+        //out, err := New().Command(pipeworkPath, brName, containerID,ip,"@"+vlanTag).CombinedOutput()
+    }
+    else{
+        return fmt.Errorf("unspport network type %s", networktype)
+    }
+
+
+    if err != nil {
+        return fmt.Errorf("failed to add veth %q: %v", out, err)
+    }
+    return  nil
 }

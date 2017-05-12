@@ -1,13 +1,13 @@
-package networkmange
+package types
 
 import (
-    //"fmt"
     "encoding/json"
 )
 
 type networkType int
 type Status int
 type BrType int
+
 
 const (
     Direct networkType = iota // value --> 0
