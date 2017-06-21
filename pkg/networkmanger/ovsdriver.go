@@ -61,29 +61,26 @@ func (nm OvsNetworkManger)ensureBridge(brName string) error {
     return nil
 }
 
-func (nm OvsNetworkManger)addVeth(brName string,containerID string, networktype types.networkType, argu string)  error {
-    if networkType==types.Direct{
-        return fmt.Errorf("unimplement network type%s", networktype)
+func (nm OvsNetworkManger)addVeth(brName string, containerID string, network types.Network, argu string)  error {
+    if network.Type==types.Direct{
+        return fmt.Errorf("unimplement network type%s", network.Type)
         //out, err := New().Command(pipeworkPath, brName, containerID,ip).CombinedOutput()
-    }else if networkType==types.Vlan{
-        return fmt.Errorf("unimplement network type%s", networktype)
+    }else if network.Type==types.Vlan{
+        return fmt.Errorf("unimplement network type%s", network.Type)
         //out, err := New().Command(pipeworkPath, brName, containerID,ip,"@"+vlanTag).CombinedOutput()
-    }
-    else if networkType==types.Vxlan{
-        return fmt.Errorf("unimplement network type%s", networktype)
+    }else if network.Type==types.Vxlan{
+        return fmt.Errorf("unimplement network type%s", network.Type)
         //out, err := New().Command(pipeworkPath, brName, containerID,ip,"@"+vlanTag).CombinedOutput()
-    }
-    else if networkType==types.Gre{
-        return fmt.Errorf("unimplement network type%s", networktype)
+    }else if network.Type==types.Gre{
+        return fmt.Errorf("unimplement network type%s", network.Type)
         //out, err := New().Command(pipeworkPath, brName, containerID,ip,"@"+vlanTag).CombinedOutput()
-    }
-    else{
-        return fmt.Errorf("unspport network type %s", networktype)
+    }else{
+        return fmt.Errorf("unspport network type %s", network.Type)
     }
 
-
+/*
     if err != nil {
         return fmt.Errorf("failed to add veth %q: %v", out, err)
-    }
+    }*/
     return  nil
 }

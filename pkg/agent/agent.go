@@ -8,8 +8,6 @@ import (
     "net/http"
     "bytes"
     "io/ioutil"
-    //"github.com/liuliuzi/k8s-neutron/pkg/api/pod"
-    //"github.com/liuliuzi/k8s-neutron/pkg/api/networkmange"
     "github.com/liuliuzi/k8s-neutron/pkg/types"
     "github.com/liuliuzi/k8s-neutron/pkg/networkmanger"
     "encoding/json"
@@ -31,34 +29,55 @@ func Update(networkconfigChan chan types.Network){
 
 }
 
+func merge(existNetworksMap map[string]types.Network , currentNetworksConfigMap map[string]types.Network , networkconfigChan chan types.Network){
+    for key, val := range existNetworksMap {
+        if commits2val, ok := currentNetworksConfigMap[key]; ok {
+            if commits2val != val {
+                //fmt.Println("find but not eauql", key, val, commits2val)
+                fmt.Println("DEL", key, val)
+                fmt.Println("ADD", key, commits2val)
+            }
+            delete(existNetworksMap, key)
+            delete(currentNetworksConfigMap, key)
+        } else {
+            fmt.Println("DEL ", key, val)
+            delete(existNetworksMap, key)
+        }
+    }
+    fmt.Println("=================")
+    for key, val := range currentNetworksConfigMap {
+        if commits1val, ok := existNetworksMap[key]; !ok {
+            if commits1val != val {
+                fmt.Println("add ", key, val)
+            }
+        }
+    }
+}
+
 func SyncNetwork(dc *client.Client ,  networkconfigChan chan types.Network) {
 	podConfigList,err:=getPodConfigList()
-    fmt.Println(podList)
-
+    fmt.Println(podConfigList)
 	//get container list
 	containerList, err := dc.ContainerList(context.Background(), dockertypes.ContainerListOptions{})
     if err != nil {
         panic(err)
     }
-
     for _, container := range containerList {
         fmt.Printf("%s %s\n", container.ID, container.Image)
         for _, podConfig := range podConfigList{
-            if container.id==podConfig.id{
+            if container.ID==podConfig.Id{
                 fmt.Printf("find ----------------\n")
-                currentNetworkIdList:=getNetworksFromContainer(container.id)
-                currentNetworkConfigIdList:=getNetworksFromPod(podConfig.Networks)
-                for _,currentNetwork:=range currentNetworks{
-                    if 
-                }
+                existNetworksMap:=getNetworksFromContainer(container.ID)
+                currentNetworksConfigMap:=getNetworksFromPodConfig(podConfig.Networks)
+                merge(existNetworksMap,currentNetworksConfigMap,networkconfigChan)
+            }
         }
-        networkList=getContainerNetworkList(container.ID)
     }
-
-    
-
 }
 
+func getNetworksFromContainer(string containerUUID){
+    
+}
 func getNetworksForPod(pod types.Pod ,networkconfigChan chan types.Network){
     for _, network := range pod.Networks{
         fmt.Println(network.Id)
@@ -67,15 +86,9 @@ func getNetworksForPod(pod types.Pod ,networkconfigChan chan types.Network){
 }
 
 func syncNetworkForPod(pod types.Pod, network types.Network,networkconfigChan chan types.Network){
-    //judege network is in pod
-    //1,judege br exit
-    //
     networkconfigChan <- network
 }
 
-//func listNetworkForPod(pod pod.Pod, network networkmange.Network){
-    
-//}
 
 
 
