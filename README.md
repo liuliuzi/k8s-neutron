@@ -1,5 +1,5 @@
 # k8s-neutron
-Modify k8s network dynamically
+Modify k8s network dynamically by this cni plugin
 
 Deploy:
             K8s worknode                             K8s master node
